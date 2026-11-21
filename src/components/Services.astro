@@ -1,0 +1,28 @@
+---
+import { profile } from '../data/profile';
+---
+<section id="help" class="section">
+  <div class="container">
+    <h2 class="section-title reveal">What I Do</h2>
+    <ul class="grid" role="list">
+      {profile.services.map((s) => (
+        <li class="card service reveal">
+          <h3>{s.title}</h3>
+          <p>{s.body}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .grid { margin: 0; padding: 0; display: grid; gap: 1rem; }
+  .service { padding: 1.5rem; transition: border-color 0.2s ease, transform 0.2s var(--ease-out); }
+  .service:hover { border-color: var(--border-strong); transform: translateY(-3px); }
+  h3 { font-size: 1.125rem; font-weight: 650; margin-bottom: 0.5rem; }
+  p { color: var(--muted); }
+
+  @media (min-width: 720px) {
+    .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+</style>

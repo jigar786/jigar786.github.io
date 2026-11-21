@@ -1,0 +1,112 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+
+const links = [
+  { href: '#experience', label: 'Experience' },
+  { href: '#projects', label: 'Projects' },
+  { href: '#contact', label: 'Contact' },
+];
+---
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="#top" class="logo">Jigar Panchal<span class="dot">.</span></a>
+
+    <div class="nav-right">
+      <nav aria-label="Primary" class="nav-links">
+        <ul role="list">
+          {links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+        </ul>
+      </nav>
+
+      <details class="nav-menu" data-menu>
+        <summary>Menu</summary>
+        <nav aria-label="Mobile" class="menu-panel">
+          <ul role="list">
+            {links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+          </ul>
+        </nav>
+      </details>
+
+      <ThemeToggle />
+    </div>
+  </div>
+</header>
+
+<style>
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--nav-bg);
+    -webkit-backdrop-filter: saturate(160%) blur(12px);
+    backdrop-filter: saturate(160%) blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    height: var(--nav-h);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .logo {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    padding-block: 0.6rem;
+  }
+  .dot { color: var(--accent); }
+  .nav-right { display: flex; align-items: center; gap: 0.5rem; }
+
+  .nav-links { display: none; }
+  .nav-links ul { display: flex; gap: 0.25rem; margin: 0; }
+  .nav-links a,
+  .menu-panel a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding-inline: 0.85rem;
+    border-radius: 8px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--muted);
+  }
+  .nav-links a:hover,
+  .menu-panel a:hover { color: var(--text); background: var(--accent-soft); }
+
+  .nav-menu summary {
+    list-style: none;
+    display: grid;
+    place-items: center;
+    min-width: 64px;
+    height: 44px;
+    padding-inline: 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    user-select: none;
+  }
+  .nav-menu summary::-webkit-details-marker { display: none; }
+  .nav-menu[open] summary { color: var(--text); border-color: var(--border-strong); }
+  .menu-panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: var(--nav-h);
+    padding: 0.5rem var(--gutter) 1rem;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.25);
+  }
+  .menu-panel ul { margin: 0; display: grid; gap: 0.25rem; }
+  .menu-panel a { font-size: 1rem; padding-inline: 0.75rem; }
+
+  @media (min-width: 720px) {
+    .nav-links { display: block; }
+    .nav-menu { display: none; }
+  }
+</style>

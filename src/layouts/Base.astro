@@ -1,0 +1,154 @@
+---
+import '@fontsource-variable/inter';
+import '../styles/global.css';
+import { profile } from '../data/profile';
+
+const site = Astro.site!.href.replace(/\/$/, '');
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const ogImage = `${site}/og.png`;
+const personLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: profile.name,
+  jobTitle: profile.title,
+  email: `mailto:${profile.email}`,
+  url: `${site}/`,
+  address: { '@type': 'PostalAddress', addressLocality: 'Mumbai', addressCountry: 'IN' },
+  sameAs: profile.links.map((l) => l.href),
+  knowsAbout: profile.skills.flatMap((g) => g.items),
+};
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{profile.seo.title}</title>
+    <meta name="description" content={profile.seo.description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#0b0d10" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f7f8fa" media="(prefers-color-scheme: light)" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={profile.seo.title} />
+    <meta property="og:description" content={profile.seo.description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script type="application/ld+json" set:html={JSON.stringify(personLd)} />
+
+    <script is:inline>
+      (function () {
+        var root = document.documentElement;
+        var KEY = 'theme';
+        var theme;
+        try { theme = localStorage.getItem(KEY); } catch (e) {}
+        if (theme !== 'light' && theme !== 'dark') {
+          theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
+        root.dataset.theme = theme;
+
+        document.addEventListener('DOMContentLoaded', function () {
+          var toggle = document.getElementById('theme-toggle');
+          if (toggle) {
+            toggle.hidden = false;
+            toggle.addEventListener('click', function () {
+              theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+              root.dataset.theme = theme;
+              try { localStorage.setItem(KEY, theme); } catch (e) {}
+            });
+          }
+          // Headline typing effect: type, pause, delete, next phrase.
+          var rotator = document.querySelector('[data-rotate]');
+          var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          if (rotator && !reduce) {
+            var words = [];
+            try { words = JSON.parse(rotator.getAttribute('data-rotate')); } catch (e) {}
+            var out = rotator.querySelector('.typed');
+            if (out && words.length > 1) {
+              rotator.classList.add('is-typing');
+              var i = 0, n = words[0].length, deleting = true;
+              var step = function () {
+                var word = words[i];
+                if (deleting) {
+                  n--;
+                  out.textContent = word.slice(0, n);
+                  if (n > 0) return setTimeout(step, 40);
+                  deleting = false;
+                  i = (i + 1) % words.length;
+                  return setTimeout(step, 350);
+                }
+                word = words[i];
+                n++;
+                out.textContent = word.slice(0, n);
+                if (n < word.length) return setTimeout(step, 75);
+                deleting = true;
+                setTimeout(step, 2200);
+              };
+              setTimeout(step, 2600);
+            }
+          }
+
+          // Smooth, eased glide to a section (the browser's native smooth scroll feels abrupt).
+          function easeInOutCubic(t) {
+            return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+          }
+          var glide = null;
+          function stopGlide() { if (glide) { cancelAnimationFrame(glide); glide = null; } }
+          window.addEventListener('wheel', stopGlide, { passive: true });
+          window.addEventListener('touchstart', stopGlide, { passive: true });
+          function glideTo(target) {
+            var margin = parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
+            var startY = window.scrollY;
+            var endY = Math.max(0, target.getBoundingClientRect().top + startY - margin);
+            var distance = endY - startY;
+            if (reduce || Math.abs(distance) < 2) { window.scrollTo(0, endY); return; }
+            var duration = Math.min(1000, Math.max(450, Math.abs(distance) * 0.45));
+            var start = null;
+            stopGlide();
+            var frame = function (now) {
+              if (start === null) start = now;
+              var t = Math.min(1, (now - start) / duration);
+              window.scrollTo(0, startY + distance * easeInOutCubic(t));
+              glide = t < 1 ? requestAnimationFrame(frame) : null;
+            };
+            glide = requestAnimationFrame(frame);
+          }
+
+          // In-page links: glide to the section but keep the address bar clean (no #section).
+          // Also closes the mobile menu and moves keyboard focus to the section.
+          document.querySelectorAll('a[href^="#"]').forEach(function (link) {
+            link.addEventListener('click', function (event) {
+              var target = document.getElementById(link.getAttribute('href').slice(1));
+              if (!target) return;
+              event.preventDefault();
+              var menu = link.closest('details');
+              if (menu) menu.open = false;
+              glideTo(target);
+              if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
+              target.focus({ preventScroll: true });
+            });
+          });
+
+          // Someone arrived via a shared link like /#contact: keep the jump, then tidy the URL.
+          if (window.location.hash && window.history.replaceState) {
+            window.history.replaceState(null, '', window.location.pathname + window.location.search);
+          }
+        });
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <slot name="header" />
+    <main id="main">
+      <slot />
+    </main>
+    <slot name="footer" />
+  </body>
+</html>

@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.astro/
+.DS_Store
+
+# Résumé contains a phone number: never commit it. It is published as a GitHub release asset
+# ("resume" release) and downloaded by the deploy workflow. Update with: npm run resume:upload
+public/jigar-panchal-resume.pdf
+.superpowers/
